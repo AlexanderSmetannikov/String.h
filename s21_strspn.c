@@ -1,6 +1,5 @@
 #include "s21_string.h"
 // #include <string.h>
-// #include <stdio.h>
 
 s21_size_t s21_strspn(const char *str, const char *keys) {
   size_t n;
@@ -12,7 +11,6 @@ s21_size_t s21_strspn(const char *str, const char *keys) {
   }
   return n;
 }
-
 
 // int main(void) {
 //     int len, gen;

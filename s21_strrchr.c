@@ -9,7 +9,7 @@ char *s21_strrchr(const char *str, int symbol) {
 
 // int main() {
 //     char str [11]="0663456769";
-//     int ch = '0';
+//     int ch = ' ';
 //     char *ach;
 //     char *ssss;
 //     ssss = s21_strrchr(str, ch);
