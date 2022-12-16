@@ -1,8 +1,7 @@
 #include "s21_string.h"
 // #include "string.h"
 s21_size_t s21_strlen(const char *str) {
-  s21_size_t strLength = 0;
-  for (; str[strLength];strLength++);
+  for (s21_size_t strLength = 0; str[strLength]; strLength++);
   return strLength;
 }
 

@@ -4,7 +4,7 @@
 char *s21_strchr(const char *str, int symbol) {
     int i = 0;
     while (str[i] && str[i] != symbol) i++;
-    return symbol == str[i] ? (char*)str + i : NULL;
+    return symbol == str[i] ? (char*)str + i : s21_NULL;
 }
 
 // int main() {
