@@ -1,4 +1,4 @@
-#include "s21_string.h"
+#include "../s21_string.h"
 // #include <string.h>
 
 s21_size_t s21_strspn(const char *str, const char *keys) {

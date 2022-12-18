@@ -1,4 +1,4 @@
-#include "s21_string.h"
+#include "../s21_string.h"
 // #include <string.h>
 char *s21_strrchr(const char *str, int symbol) {
     int res = -1;

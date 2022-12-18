@@ -1,4 +1,4 @@
-#include "s21_string.h"
+#include "../s21_string.h"
 // #include <string.h>
 
 // char *s21_strchr(const char *str, int symbol) {
@@ -16,6 +16,12 @@ char *s21_strpbrk(const char *str, const char *keys) {
     }
     return res;
 }
+
+// char *s21_strpbrk(const char *str, const char *keys) {
+//     for (; *str != '\0' && !s21_strchr(keys, *str); str++);
+//     if (s21_strchr(keys, *str) != s21_NULL) printf("yes\n");
+//     return s21_strchr(keys, *str) != s21_NULL  ? (char*)str : s21_NULL;
+// }
 
 // int main() {
 //     char str [11]="012345";
