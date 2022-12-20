@@ -4,6 +4,18 @@
 #include "./src/s21_string.h"
 #include "s21_sprintf.h"
 
+#define N_DECIMAL_POINTS_PRECISION (1000000)
+#define flag_plus 2
+#define flag_minus 4
+#define flag_space 8
+
+typedef struct flags {
+    int precision;
+    int flags;
+    int width;
+    int length;
+} flags;
+
 int s21_putchar(char* str, char c) {
     while(*str) str++;
     *str++ = c;
@@ -15,7 +27,7 @@ int s21_putnumber(char* buf, int num) {
     int res = 0;
     int div = 1;
     while (num / div != 0) div *= 10;
-    div /= 10;
+    div /= 10; 
     int ostatok = 0;
     while (num % div >= 0) {
         ostatok = num / div;
@@ -38,20 +50,36 @@ int s21_putstring(char* buf, char* str) {
 
 int s21_putfloat(char* buf, float num) {
     int res = 0;
-    int integer_part = (int)num;
-    num -= (float)integer_part;
-    int multiplicator = 1;
-    while(num <= 1) {
-        num *= multiplicator;
-        multiplicator *= 10;
-    }
-    res += s21_putnumber(buf, integer_part);
+    int integerPart = (int)num;
+    int decimalPart = ((int)(num*N_DECIMAL_POINTS_PRECISION)%N_DECIMAL_POINTS_PRECISION);
+    res += s21_putnumber(buf, integerPart);
     res += s21_putchar(buf, '.');
-    // res += s21_putnumber(buf, integer_part);
+    res += s21_putnumber(buf, decimalPart);
     return res; 
 }
 
+int s21_stoi(char* str) {
+    int res = 0;
+    while(*str >= '0' && *str <= '9') {
+        res *= 10;
+        res += (*str - '0');
+        str++;
+    }
+    return res;
+}
+
+void spec_config (char* format, flags* fl) {
+    while(*format || *format != '%'){
+        if(*format == '+') fl->flags += flag_plus;
+        if(*format == '+') fl->flags += flag_minus;
+        else if(*format == ' ') fl->flags += flag_space;
+        if(*format >= '0' && *format <= '9') fl-> length = s21_atoi(format);
+        format++;
+    }
+}
+
 int s21_sprintf(char* buf, const char* format, ...) {
+    flags fl = {0};
     buf[0] = '\0';
     va_list args;
     va_start (args, format);
@@ -93,8 +121,8 @@ int s21_sprintf(char* buf, const char* format, ...) {
 }
 
 int main() {
-    char str[80];
-    char str_orig[80];
+    char str[80] = {'\0'};
+    char str_orig[80] = {'\0'};
     // char b = 'A';
     int res_1 = s21_sprintf(str, "%c %s %d %c %u %% %% %f", 'A', "dsf1dsf", 1123213, 'B', 12, 12.123);
     int res_1_orig = sprintf(str_orig, "%c %s %d %c %u %% %% %f", 'A', "dsf1dsf", 1123213, 'B', 12, 12.123);
