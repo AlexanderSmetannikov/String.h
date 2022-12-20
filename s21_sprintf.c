@@ -53,13 +53,14 @@ int s21_putstring(char* buf, char* str) {
 
 int s21_putfloat(char* buf, float num, flags* fl) {
     int res = 0;
-    ll pr = fl -> precision ? pow(10, fl -> precision) : N_DECIMAL_POINTS_PRECISION;
-    // printf("prec is: %d", pr);
+    ll pr = fl -> precision > 0 ? pow(10, fl -> precision) : N_DECIMAL_POINTS_PRECISION;
     int integerPart = (int)num;
     ll decimalPart = ((ll)(num*pr)%pr);
     res += s21_putnumber(buf, integerPart);
-    res += s21_putchar(buf, '.');
-    res += s21_putnumber(buf, decimalPart);
+    if(fl -> precision >= 0) {
+        res += s21_putchar(buf, '.');
+        res += s21_putnumber(buf, decimalPart);
+    }
     return res; 
 }
 
@@ -82,28 +83,51 @@ int numLength(int num) {
     return res;
 }
 
+int is_digit(char c) {
+    return (c >= '0' && c <= '9');
+}
+
+int is_spec(char c) {
+    return (c == 'c' || c == 'd' || c == 'i' || c == 'f' || c == 's' || c == 'u' || c == '%');
+}
+
+int is_special_symbols(char c) {
+    return (c == '\\' ||  c == '\a' || c == '\b' || c == '\f' || c == '\n' || c == '\r' || c == '\t' || c == '\v');
+}
+
 int spec_config (const char* format, flags* fl) {
     int res = 0;
     while(*format){
-        // if(*format == '+') fl->flags += flag_plus;
-        // if(*format == '+') fl->flags += flag_minus;
-        // else if(*format == ' ') fl->flags += flag_space;
-        // if(*format >= '0' && *format <= '9') fl-> width = s21_stoi(format);
+        if(*format == '+') fl->flags += flag_plus;
+        if(*format == '-') fl->flags += flag_minus;
+        else if(*format == ' ') fl->flags += flag_space;
+        if(is_digit(*format)) {
+            fl-> width = s21_stoi(format);
+            res += numLength(fl -> width);
+        }
         if(*format == '.') {
-            res++;
             format++;
-            fl -> precision = s21_stoi(format);
-            res += numLength(fl -> precision);
+            res++;
+            if(is_digit(*format)) {
+                fl -> precision = s21_stoi(format);
+                res += numLength(fl -> precision);
+            } else fl -> precision = -1;
         }
         if(*format == '%') {
             res = 0;
             break;
         } 
-        if(*format == 'd' || *format == 'f') break;
+        if(is_spec(*format)) break;
         format++;
     }
-    printf("%d\n", res);
     return res;
+}
+
+void reset_specs(flags* fl) {
+    fl -> precision = 0;
+    fl -> flags = 0;
+    fl -> width = 0;
+    fl ->length = 0;
 }
 
 int s21_sprintf(char* buf, const char* format, ...) {
@@ -116,8 +140,8 @@ int s21_sprintf(char* buf, const char* format, ...) {
     while (*format) {
         if (*format == '%') {
             format++;
+            reset_specs(&fl);
             move = spec_config(format, &fl);
-            printf("PRES %d\n", fl.precision);
             format += move;
             if(*format == 'c') {
                 res += s21_putchar(buf, (char)va_arg(args, int));
@@ -156,8 +180,8 @@ int main() {
     char str[80] = {'\0'};
     char str_orig[80] = {'\0'};
     // char b = 'A';
-    int res_1 = s21_sprintf(str, "%c %s %d %c %u %% %% %.9f", 'A', "dsf1dsf", 1123213, 'B', 12, 12.1);
-    int res_1_orig = sprintf(str_orig, "%c %s %d %c %u %% %% %.9f", 'A', "dsf1dsf", 1123213, 'B', 12, 12.1);
+    int res_1 = s21_sprintf(str, "%c %s %f %c %u %% %% %.3f", 'A', "dsf1dsf", 1123213.123, 'B', 12, 12.123);
+    int res_1_orig = sprintf(str_orig, "%c %s %f %c %u %% %% %.3f", 'A', "dsf1dsf", 1123213.123, 'B', 12, 12.123);
 
     // int res_1 = s21_sprintf(str, "%c %s %d %c %u %% %%", 'A', "dsf1dsf", 1123213, 'B', 12);
     // int res_1_orig = sprintf(str_orig, "%c %s %d %c %u %% %%", 'A', "dsf1dsf", 1123213, 'B', 12);
