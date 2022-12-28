@@ -22,6 +22,12 @@ typedef struct flags {
   int sign;
 } flags;
 
+s21_size_t s21_strlen(const char *str) {
+  s21_size_t strLength = 0;
+  for (; str[strLength]; strLength++);
+  return strLength;
+}
+
 int flag_implementation(char* buf, flags* fl) {
     int res = 0;
     // printf("FLAGS: %d\n", fl -> flags);
@@ -86,7 +92,6 @@ int s21_putfloat(char* buf, double num, flags* fl) {
       fl->precision > 0 ? pow(10, fl->precision) : N_DECIMAL_POINTS_PRECISION;
   int integerPart = (int)num;
   ll decimalPart = ((ll)(num * pr) % pr);
-//   printf("DECIMAL: %lld\n", decimalPart);
   res += s21_putnumber(buf, integerPart, fl);
   if (fl->precision >= 0 && decimalPart) {
     res += s21_putchar(buf, '.');
@@ -179,6 +184,10 @@ void reset_specs(flags* fl) {
   fl->sign = 0;
 }
 
+void fill_buff(char* buf, int n){
+    for (int i = 0; i < n; i++) s21_putchar(buf, ' ');
+}
+
 int s21_sprintf(char* buf, const char* format, ...) {
   flags fl = {0};
   buf[0] = '\0';
@@ -186,6 +195,10 @@ int s21_sprintf(char* buf, const char* format, ...) {
   va_start(args, format);
   int res = 0;
   int move = 0;
+
+//   printf("%d", len);
+//   char* copy = (char*)malloc((len+1)*sizeof(char));
+//   fill_buff(copy);
   while (*format) {
     if (*format == '%') {
       format++;
@@ -210,7 +223,7 @@ int s21_sprintf(char* buf, const char* format, ...) {
         res += s21_putnumber(buf, num, &fl);
       }
       if (*format == 'u') {
-        int num = (int)va_arg(args, unsigned int);
+        ll num = va_arg(args, unsigned int);
         if (num < 0) fl.sign = -1;
         res += s21_putnumber(buf, num, &fl);
       }
@@ -233,12 +246,12 @@ int s21_sprintf(char* buf, const char* format, ...) {
 int main() {
   char str[80] = {'\0'};
   char str_orig[80] = {'\0'};
-  const char formatter[80] = "%c %s %.10f %c %u %% %% %.13f %-10d";
+  const char formatter[80] = "%c %2s %.10f %c %u %% %% %.13f %+5d";
 
   int res_1 = s21_sprintf(str, formatter, 'A', "dsf1dsf",
-                          111111.123, 'B', 12, 12.123, 2);
+                          111111.123, 'B', 12, 12.123, 4);
   int res_1_orig = sprintf(str_orig, formatter, 'A',
-                           "dsf1dsf", 111111.123, 'B', 12, 12.123, 2);
+                           "dsf1dsf", 111111.123, 'B', 12, 12.123, 4);
 
   printf("res s21 = %d | res_orig = %d\n", res_1, res_1_orig);
   printf("s21_sprint: %s\n", str);
