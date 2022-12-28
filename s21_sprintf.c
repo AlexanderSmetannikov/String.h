@@ -16,11 +16,35 @@ typedef long long ll;
 
 typedef struct flags {
   int precision;
-  int flags;
+  char flags;
   int width;
   int length;
   int sign;
 } flags;
+
+int flag_implementation(char* buf, flags* fl) {
+    int res = 0;
+    // printf("FLAGS: %d\n", fl -> flags);
+    switch(fl->flags) {
+        case 2:
+            if (fl-> sign == 0) s21_putchar(buf, '+');
+            res++;
+            break;
+        // case 4:
+        //     break;
+        case 8:
+            s21_putchar(buf, ' ');
+            res++;
+            break;
+        default:
+            if (!fl-> sign == 0) {
+                s21_putchar(buf, '-');
+                res++;
+            }
+            break;    
+    }
+    return res;
+}
 
 int s21_putchar(char* str, char c) {
   while (*str) str++;
@@ -29,8 +53,10 @@ int s21_putchar(char* str, char c) {
   return 1;
 }
 
-int s21_putnumber(char* buf, ll num) {
+int s21_putnumber(char* buf, ll num, flags* fl) {
   int res = 0;
+  if (fl -> sign) num *= -1;
+  res += flag_implementation(buf, fl);
   ll div = 1;
   while (num / div != 0) div *= 10;
   div /= 10;
@@ -60,11 +86,11 @@ int s21_putfloat(char* buf, double num, flags* fl) {
       fl->precision > 0 ? pow(10, fl->precision) : N_DECIMAL_POINTS_PRECISION;
   int integerPart = (int)num;
   ll decimalPart = ((ll)(num * pr) % pr);
-  printf("DECIMAL: %lld\n", decimalPart);
-  res += s21_putnumber(buf, integerPart);
+//   printf("DECIMAL: %lld\n", decimalPart);
+  res += s21_putnumber(buf, integerPart, fl);
   if (fl->precision >= 0 && decimalPart) {
     res += s21_putchar(buf, '.');
-    res += s21_putnumber(buf, decimalPart);
+    res += s21_putnumber(buf, decimalPart, fl);
   }
   return res;
 }
@@ -100,15 +126,23 @@ int is_special_symbols(char c) {
           c == '\r' || c == '\t' || c == '\v');
 }
 
+
 int spec_config(const char* format, flags* fl) {
   int res = 0;
   int len = 0;
   while (*format) {
-    if (*format == '+') fl->flags += flag_plus;
-    if (*format == '-')
-      fl->flags += flag_minus;
-    else if (*format == ' ')
-      fl->flags += flag_space;
+    if (*format == '+') {
+        fl->flags |= flag_plus;
+        res++;
+    }
+    if (*format == '-') {
+        fl->flags |= flag_minus;
+        res++;
+    }  
+    if (*format == ' ') {
+        fl->flags |= flag_space;
+        res++;
+    }
     if (is_digit(*format)) {
       fl->width = s21_stoi(format);
       res += numLength(fl->width);
@@ -122,13 +156,16 @@ int spec_config(const char* format, flags* fl) {
         res += len;
         format += len - 1;
       } else
-        fl->precision = -1;
+        fl->precision = 0;
     }
     if (*format == '%') {
       res = 0;
       break;
     }
-    if (is_spec(*format)) break;
+    if (is_spec(*format)) {
+        format--;
+        break;
+    }
     format++;
   }
   return res;
@@ -164,18 +201,22 @@ int s21_sprintf(char* buf, const char* format, ...) {
       }
       if (*format == 'd') {
         int num = va_arg(args, int);
-        res += s21_putnumber(buf, num);
+        if (num < 0) fl.sign = -1;
+        res += s21_putnumber(buf, num, &fl);
       }
       if (*format == 'i') {
         int num = va_arg(args, int);
-        res += s21_putnumber(buf, num);
+        if (num < 0) fl.sign = -1;
+        res += s21_putnumber(buf, num, &fl);
       }
       if (*format == 'u') {
         int num = (int)va_arg(args, unsigned int);
-        res += s21_putnumber(buf, num);
+        if (num < 0) fl.sign = -1;
+        res += s21_putnumber(buf, num, &fl);
       }
       if (*format == 'f') {
         double num = va_arg(args, double);
+        if (num < 0) fl.sign = -1;
         res += s21_putfloat(buf, num, &fl);
       }
       if (*format == '%') {
@@ -192,15 +233,12 @@ int s21_sprintf(char* buf, const char* format, ...) {
 int main() {
   char str[80] = {'\0'};
   char str_orig[80] = {'\0'};
-  // char b = 'A';
-  int res_1 = s21_sprintf(str, "%c %s %.18f %c %u %% %% %.3f", 'A', "dsf1dsf",
-                          1.123, 'B', 12, 12.123);
-  int res_1_orig = sprintf(str_orig, "%c %s %.18f %c %u %% %% %.3f", 'A',
-                           "dsf1dsf", 1.123, 'B', 12, 12.123);
+  const char formatter[80] = "%c %s %.10f %c %u %% %% %.13f %-10d";
 
-  // int res_1 = s21_sprintf(str, "%c %s %d %c %u %% %%", 'A', "dsf1dsf",
-  // 1123213, 'B', 12); int res_1_orig = sprintf(str_orig, "%c %s %d %c %u %%
-  // %%", 'A', "dsf1dsf", 1123213, 'B', 12);
+  int res_1 = s21_sprintf(str, formatter, 'A', "dsf1dsf",
+                          111111.123, 'B', 12, 12.123, 2);
+  int res_1_orig = sprintf(str_orig, formatter, 'A',
+                           "dsf1dsf", 111111.123, 'B', 12, 12.123, 2);
 
   printf("res s21 = %d | res_orig = %d\n", res_1, res_1_orig);
   printf("s21_sprint: %s\n", str);
