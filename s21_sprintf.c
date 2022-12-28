@@ -19,6 +19,7 @@ typedef struct flags {
   int flags;
   int width;
   int length;
+  int sign;
 } flags;
 
 int s21_putchar(char* str, char c) {
@@ -30,7 +31,7 @@ int s21_putchar(char* str, char c) {
 
 int s21_putnumber(char* buf, ll num) {
   int res = 0;
-  int div = 1;
+  ll div = 1;
   while (num / div != 0) div *= 10;
   div /= 10;
   ll ostatok = 0;
@@ -53,14 +54,15 @@ int s21_putstring(char* buf, char* str) {
   return res;
 }
 
-int s21_putfloat(char* buf, float num, flags* fl) {
+int s21_putfloat(char* buf, double num, flags* fl) {
   int res = 0;
   ll pr =
       fl->precision > 0 ? pow(10, fl->precision) : N_DECIMAL_POINTS_PRECISION;
   int integerPart = (int)num;
   ll decimalPart = ((ll)(num * pr) % pr);
+  printf("DECIMAL: %lld\n", decimalPart);
   res += s21_putnumber(buf, integerPart);
-  if (fl->precision >= 0) {
+  if (fl->precision >= 0 && decimalPart) {
     res += s21_putchar(buf, '.');
     res += s21_putnumber(buf, decimalPart);
   }
@@ -100,6 +102,7 @@ int is_special_symbols(char c) {
 
 int spec_config(const char* format, flags* fl) {
   int res = 0;
+  int len = 0;
   while (*format) {
     if (*format == '+') fl->flags += flag_plus;
     if (*format == '-')
@@ -115,7 +118,9 @@ int spec_config(const char* format, flags* fl) {
       res++;
       if (is_digit(*format)) {
         fl->precision = s21_stoi(format);
-        res += numLength(fl->precision);
+        len = numLength(fl->precision);
+        res += len;
+        format += len - 1;
       } else
         fl->precision = -1;
     }
@@ -134,6 +139,7 @@ void reset_specs(flags* fl) {
   fl->flags = 0;
   fl->width = 0;
   fl->length = 0;
+  fl->sign = 0;
 }
 
 int s21_sprintf(char* buf, const char* format, ...) {
@@ -169,7 +175,7 @@ int s21_sprintf(char* buf, const char* format, ...) {
         res += s21_putnumber(buf, num);
       }
       if (*format == 'f') {
-        float num = (float)va_arg(args, double);
+        double num = va_arg(args, double);
         res += s21_putfloat(buf, num, &fl);
       }
       if (*format == '%') {
@@ -187,10 +193,10 @@ int main() {
   char str[80] = {'\0'};
   char str_orig[80] = {'\0'};
   // char b = 'A';
-  int res_1 = s21_sprintf(str, "%c %s %f %c %u %% %% %.3f", 'A', "dsf1dsf",
-                          1123213.123, 'B', 12, 12.123);
-  int res_1_orig = sprintf(str_orig, "%c %s %f %c %u %% %% %.3f", 'A',
-                           "dsf1dsf", 1123213.123, 'B', 12, 12.123);
+  int res_1 = s21_sprintf(str, "%c %s %.18f %c %u %% %% %.3f", 'A', "dsf1dsf",
+                          1.123, 'B', 12, 12.123);
+  int res_1_orig = sprintf(str_orig, "%c %s %.18f %c %u %% %% %.3f", 'A',
+                           "dsf1dsf", 1.123, 'B', 12, 12.123);
 
   // int res_1 = s21_sprintf(str, "%c %s %d %c %u %% %%", 'A', "dsf1dsf",
   // 1123213, 'B', 12); int res_1_orig = sprintf(str_orig, "%c %s %d %c %u %%
