@@ -22,34 +22,35 @@ typedef struct flags {
   int sign;
 } flags;
 
-s21_size_t s21_strlen(const char *str) {
+s21_size_t s21_strlen(const char* str) {
   s21_size_t strLength = 0;
-  for (; str[strLength]; strLength++);
+  for (; str[strLength]; strLength++)
+    ;
   return strLength;
 }
 
 int flag_implementation(char* buf, flags* fl) {
-    int res = 0;
-    // printf("FLAGS: %d\n", fl -> flags);
-    switch(fl->flags) {
-        case 2:
-            if (fl-> sign == 0) s21_putchar(buf, '+');
-            res++;
-            break;
-        // case 4:
-        //     break;
-        case 8:
-            s21_putchar(buf, ' ');
-            res++;
-            break;
-        default:
-            if (!fl-> sign == 0) {
-                s21_putchar(buf, '-');
-                res++;
-            }
-            break;    
-    }
-    return res;
+  int res = 0;
+  // printf("FLAGS: %d\n", fl -> flags);
+  switch (fl->flags) {
+    case 2:
+      if (fl->sign == 0) s21_putchar(buf, '+');
+      res++;
+      break;
+    // case 4:
+    //     break;
+    case 8:
+      s21_putchar(buf, ' ');
+      res++;
+      break;
+      // default:
+      //     if (!fl-> sign == 0) {
+      //         s21_putchar(buf, '-');
+      //         res++;
+      //     }
+      //     break;
+  }
+  return res;
 }
 
 int s21_putchar(char* str, char c) {
@@ -61,7 +62,7 @@ int s21_putchar(char* str, char c) {
 
 int s21_putnumber(char* buf, ll num, flags* fl) {
   int res = 0;
-  if (fl -> sign) num *= -1;
+  if (fl->sign) num *= -1;
   res += flag_implementation(buf, fl);
   ll div = 1;
   while (num / div != 0) div *= 10;
@@ -131,22 +132,21 @@ int is_special_symbols(char c) {
           c == '\r' || c == '\t' || c == '\v');
 }
 
-
 int spec_config(const char* format, flags* fl) {
   int res = 0;
   int len = 0;
   while (*format) {
     if (*format == '+') {
-        fl->flags |= flag_plus;
-        res++;
+      fl->flags |= flag_plus;
+      res++;
     }
     if (*format == '-') {
-        fl->flags |= flag_minus;
-        res++;
-    }  
+      fl->flags |= flag_minus;
+      res++;
+    }
     if (*format == ' ') {
-        fl->flags |= flag_space;
-        res++;
+      fl->flags |= flag_space;
+      res++;
     }
     if (is_digit(*format)) {
       fl->width = s21_stoi(format);
@@ -168,8 +168,8 @@ int spec_config(const char* format, flags* fl) {
       break;
     }
     if (is_spec(*format)) {
-        format--;
-        break;
+      format--;
+      break;
     }
     format++;
   }
@@ -184,8 +184,8 @@ void reset_specs(flags* fl) {
   fl->sign = 0;
 }
 
-void fill_buff(char* buf, int n){
-    for (int i = 0; i < n; i++) s21_putchar(buf, ' ');
+void fill_buff(char* buf, int n) {
+  for (int i = 0; i < n; i++) s21_putchar(buf, ' ');
 }
 
 int s21_sprintf(char* buf, const char* format, ...) {
@@ -196,9 +196,9 @@ int s21_sprintf(char* buf, const char* format, ...) {
   int res = 0;
   int move = 0;
 
-//   printf("%d", len);
-//   char* copy = (char*)malloc((len+1)*sizeof(char));
-//   fill_buff(copy);
+  //   printf("%d", len);
+  //   char* copy = (char*)malloc((len+1)*sizeof(char));
+  //   fill_buff(copy);
   while (*format) {
     if (*format == '%') {
       format++;
@@ -248,10 +248,10 @@ int main() {
   char str_orig[80] = {'\0'};
   const char formatter[80] = "%c %2s %.10f %c %u %% %% %.13f %+5d";
 
-  int res_1 = s21_sprintf(str, formatter, 'A', "dsf1dsf",
-                          111111.123, 'B', 12, 12.123, 4);
-  int res_1_orig = sprintf(str_orig, formatter, 'A',
-                           "dsf1dsf", 111111.123, 'B', 12, 12.123, 4);
+  int res_1 = s21_sprintf(str, formatter, 'A', "dsf1dsf", 111111.123, 'B', 12,
+                          12.123, 4);
+  int res_1_orig = sprintf(str_orig, formatter, 'A', "dsf1dsf", 111111.123, 'B',
+                           12, 12.123, 4);
 
   printf("res s21 = %d | res_orig = %d\n", res_1, res_1_orig);
   printf("s21_sprint: %s\n", str);
