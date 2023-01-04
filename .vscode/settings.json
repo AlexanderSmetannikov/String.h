@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "random": "c",
+        "ratio": "c",
+        "cstdlib": "c",
+        "math.h": "c"
+    }
+}
