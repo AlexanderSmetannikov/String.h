@@ -1,47 +1,33 @@
 #include "../s21_string.h"
 
-int is_delim(char c, const char* delim) {
-    int ans = 0;
-    while (*delim && !ans) {
-        if(c == *delim) ans = 1;
-        delim++;
-    }
-    return ans;
-}
-
-// s21_size_t s21_strcspn(const char *str, const char *keys) {
-//     s21_size_t res = 0;
-//     while(!s21_strchr(keys, *str) && *str != '\0') {
-//         str++;
-//         res++;
-//     }
-//     return res;
-// }
-
 char *s21_strtok(char *str, const char *delim) {
-    static char* back_str;
-    
-    if(!str) str = back_str;
-    if(!str) return NULL;
-    while(1) {
-        if(is_delim(*str, delim)) {
-            str++;
-            continue;
-        }
-        if(*str == '\0') return NULL; 
-        break;
+  int flag = 0;
+  static char *last;  // класс static позволяет сохранять значение переменной
+                      // между вызовами функции
+  char *res;
+  if (str == s21_NULL) {
+    str = last;  // если str == NULL, то берем последнее значение str
+  }
+  if (str == s21_NULL) {
+    flag = 1;  // если str == NULL, то возвращаем NULL
+  }
+  if (!flag) {
+    while (s21_is_delim(*str, delim)) {
+      str++;  // пропускаем все разделители
     }
-    char *ret = str;
-    while(1) {
-        if(*str == '\0') {
-            back_str = str;
-            return ret;
-        }
-        if(is_delim(*str, delim)) {
-            *str = '\0';
-            back_str = str + 1;
-            return ret;
-        }
-        str++;
+    if (*str == '\0') {
+      flag = 1;  // если строка закончилась, то возвращаем NULL
     }
+    res = str;
+    while (*str != '\0' && !s21_is_delim(*str, delim)) {
+      str++;  // ищем конец строки или разделитель
+    }
+    if (*str != '\0') {
+      *str = '\0';  // если строка не закончилась, то ставим терминатор
+      str++;  // и переходим к следующему символу
+    }
+    last = str;  // запоминаем последнее значение str
+  }
+  if (flag) res = s21_NULL;
+  return res;
 }

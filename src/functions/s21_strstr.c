@@ -1,43 +1,28 @@
 #include "../s21_string.h"
-// #include <string.h>
-// int s21_strncmp(const char *str1, const char *str2, s21_size_t n) {
-//     while(n-- && *str1 && (*str1 == *str2)) {
-//         str1++;
-//         str2++;
-//     }
-//     return *str1 - *str2;
-// }
 
-// s21_size_t s21_strlen(const char *str) {
-//     s21_size_t strLength = 0;
-//   for (; str[strLength]; strLength++);
-//   return strLength;
-// }
-
-char *s21_strstr(const char *destptr, const char *srcptr) {
-    size_t srcptrLength = s21_strlen(srcptr);
-    char *res = s21_NULL;
-    for (; *destptr; destptr++) {
-        if (strncmp(destptr, srcptr, srcptrLength) == 0) {
-            res = (char*)destptr;
-            break;
-        }
+char *s21_strstr(char *str, char *substr) {
+  char *p = str;
+  int flag = 0;
+  while (*p != '\0') {  // перебираем все символы строки до терминатора
+    if (*p == *substr) {  // если совпадали первые символы
+      char *p1 = p;  // сравниваем указатели на начало слова и подстроки
+      char *p2 = substr;
+      while (*p1 == *p2 && *p1 != '\0') {
+        p1++;
+        p2++;
+      }
+      if (*p2 == '\0') {
+        flag = 1;  // если строки совпали, то возвращаем указатель на начало
+        break;
+      }
     }
-    return res;
+    p++;
+  }
+  if (!flag) {
+    p = s21_NULL;  // если подстрока не найдена, то возвращаем NULL
+  }
+  if (*substr == '\0') {
+    p = str;  // если подстрока пустая, то возвращаем указатель на начало строки
+  }
+  return p;
 }
-
-// int main() {    
-
-//     char str1 [11]="0129456123";
-//     char str2 [10]="123";
-
-//     char *istr;
-//     char *ssss;
-
-//     istr = strstr(str1,str2);
-//     ssss = s21_strstr(str1, str2);
-
-//     printf("%d %d\n", istr - str1 + 1, ssss - str1 + 1);
-//     if (istr == ssss) printf("Yes");
-//     return 0;
-// }
